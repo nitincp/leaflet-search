@@ -1,0 +1,21 @@
+<form class="form-inline" [formGroup]="searchForm" novalidate (ngSubmit)="onSearch(searchForm.value)">
+  <input class="form-control form-control-sm" type="text" formControlName="search" minlength="5" required>
+  <button type="submit" class="btn btn-sm btn-primary" [disabled]="searchForm.invalid">Search</button>
+  <button type="reset" class="btn btn-sm btn-secondary">Reset</button>
+</form>
+
+<form novalidate [formGroup]="selectFeaturesForm">
+  <ul class="list-group" formArrayName="features">
+    <li *ngFor="let feature of resultFeatures?.features; let i=index" class="list-group-item" btnCheckbox
+      [formControlName]="i" [btnCheckboxTrue]="feature" [btnCheckboxFalse]="null" >
+      <img [attr.src]="feature.properties.icon"
+        [attr.alt]="feature.properties.type + ', ' + feature.properties.category">
+      <h5> {{ feature.properties.display_name }} </h5>
+      <span> <strong> category </strong> {{ feature.properties.category }}</span>
+      <span> <strong> type </strong> {{ feature.properties.type }} </span>
+    </li>
+    <li *ngIf="resultFeatures?.features.length === 0" class="list-group-item">
+      No results found.
+    </li>
+  </ul>
+</form>

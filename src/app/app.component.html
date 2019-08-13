@@ -3,14 +3,15 @@
         <form class="col-3" novalidate [formGroup]="selectCityForm">
             <ul class="list-group" style="height: 100vh; overflow: auto" btnRadioGroup formControlName="selectedCity">
                 <li [btnRadio]="city" role="option" tabindex="0" *ngFor="let city of worldCities"
-                    class="list-group-item">
+                    class="list-group-item" [style.background-color]="city.saved ? 'lime' : null" >
                     {{ city.name }}, {{city.country}}
                 </li>
             </ul>
         </form>
-        <app-osm-search class=" col-4" [search]="search" (featuresSelected)="onFeaturesSelected($event)">
+        <button class="btn btn-sm btn-primary" (click)="onSave()">save</button>
+        <button class="btn btn-sm btn-primary" (click)="onRemove()">remove</button>
+        <app-osm-search [(ngModel)]="osmSearch" class=" col-4" [search]="search">
         </app-osm-search>
-        <app-leaflet-geo-highlight class="col" [geoJSON]="selectedFeatures"></app-leaflet-geo-highlight>
+        <app-leaflet-features-highlight class="col" [featureCollection]="osmSearch"></app-leaflet-features-highlight>
     </div>
 </div>
-<div #d3container></div>

@@ -3,15 +3,12 @@ import * as g from 'geojson';
 import { HttpClient } from '@angular/common/http';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
-import { zoomableCirclePacking } from './zoomable-circle-packing';
-
-console.log('zoomable circle packing', zoomableCirclePacking);
-
 type CityInfo = {
   "country": string;
   "geonameid": number;
   "name": string;
   "subcountry": string;
+  saved: boolean
 };
 
 type SelectCityForm = {
@@ -30,16 +27,27 @@ export class AppComponent implements OnInit {
   search: string;
   selectCityForm: FormGroup;
 
-  @ViewChild('d3container')
-  d3container: ElementRef<HTMLDivElement>;
+  osmSearch: g.FeatureCollection;
 
   constructor(private fb: FormBuilder, private http: HttpClient) { }
 
   ngOnInit() {
 
-    this.http.get<any>('./assets/world-cities.json').subscribe(worldCities => {
+    this.http.get<CityInfo[]>('./assets/world-cities.json').subscribe(worldCities => {
+ 
+      this.worldCities = worldCities.slice(0, 100);
+      for (let idx = 0; idx < this.worldCities.length; idx++) {
+        const city = this.worldCities[idx];
+        const citySearchText = getSearchText(city);
 
-      this.worldCities = worldCities;
+        const savedData = localStorage.getItem(citySearchText);
+
+        if (savedData) {
+          city.saved = true;
+        } else {
+          city.saved = false;
+        }
+      }
     });
 
     this.selectCityForm = this.fb.group({
@@ -49,10 +57,6 @@ export class AppComponent implements OnInit {
     this.selectCityForm.valueChanges.subscribe((selectCityForm: SelectCityForm) => {
       this.onSearchCity(selectCityForm.selectedCity);
     });
-
-    const mysvg = zoomableCirclePacking();
-    console.log('mysvg', mysvg);
-    this.d3container.nativeElement.appendChild(mysvg);
   }
 
   onFeaturesSelected(features: g.FeatureCollection) {
@@ -60,7 +64,29 @@ export class AppComponent implements OnInit {
     this.selectedFeatures = features;
   }
 
+  onSave() {
+
+    localStorage.setItem(this.search, JSON.stringify(this.osmSearch));
+    (this.selectCityForm.value as SelectCityForm).selectedCity.saved = true;
+  }
+
+  onRemove() {
+    localStorage.removeItem(this.search);
+    (this.selectCityForm.value as SelectCityForm).selectedCity.saved = false;
+  }
+
   onSearchCity(city: CityInfo) {
-    this.search = `${city.name}, ${city.subcountry}, ${city.country}`;
+
+    this.search = getSearchText(city);
+    const savedData = localStorage.getItem(this.search);
+    if (savedData) {
+      this.osmSearch = JSON.parse(savedData);
+    } else {
+      this.osmSearch = null;
+    }
   }
 }
+function getSearchText(city: CityInfo): string {
+  return `${city.name}, ${city.subcountry}, ${city.country}`;
+}
+

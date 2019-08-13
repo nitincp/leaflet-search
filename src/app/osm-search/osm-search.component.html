@@ -6,7 +6,7 @@
 
 <form novalidate [formGroup]="selectFeaturesForm">
   <ul class="list-group" formArrayName="features">
-    <li *ngFor="let feature of resultFeatures?.features; let i=index" class="list-group-item" btnCheckbox
+    <li *ngFor="let feature of searchResultFeatureCollection?.features; let i=index" class="list-group-item" btnCheckbox
       [formControlName]="i" [btnCheckboxTrue]="feature" [btnCheckboxFalse]="null" >
       <img [attr.src]="feature.properties.icon"
         [attr.alt]="feature.properties.type + ', ' + feature.properties.category">
@@ -14,7 +14,7 @@
       <span> <strong> category </strong> {{ feature.properties.category }}</span>
       <span> <strong> type </strong> {{ feature.properties.type }} </span>
     </li>
-    <li *ngIf="resultFeatures?.features.length === 0" class="list-group-item">
+    <li *ngIf="searchResultFeatureCollection?.features.length === 0" class="list-group-item">
       No results found.
     </li>
   </ul>
